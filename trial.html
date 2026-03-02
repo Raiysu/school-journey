@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Journal</title>
+    <style>
+        /* Pixel font */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            /* Black background */
+            color: #0f0;
+            /* Green text by default */
+            overflow-x: hidden;
+        }
+
+        /* Front page */
+        #front-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        #welcome-button {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            color: #0f0;
+            /* Green text */
+            background-color: #000;
+            border: 4px solid #0f0;
+            /* Green border */
+            padding: 20px 40px;
+            cursor: pointer;
+            image-rendering: pixelated;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        #welcome-button:hover {
+            background-color: #0f0;
+            /* Green background */
+            color: #ff0;
+            /* Yellow text on hover */
+            border-color: #ff0;
+            /* Yellow border on hover */
+        }
+
+        /* Journal container */
+        #journal-container {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .journal-entry {
+            perspective: 1000px;
+            width: 250px;
+            cursor: pointer;
+        }
+
+        .card {
+            width: 100%;
+            height: 350px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            border: 4px solid #0f0;
+            /* Green border */
+            box-shadow: 0 0 0 #0f0;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            text-align: center;
+            background-color: #111;
+            color: #0f0;
+            /* Green text inside cards */
+        }
+
+        .card-front img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            image-rendering: pixelated;
+            margin-bottom: 10px;
+            border: 2px solid #0f0;
+            /* Green border for images */
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            padding: 10px;
+            border: 2px solid #0f0;
+            /* Green border back */
+        }
+
+        /* Lightbox */
+        #lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #lightbox img {
+            max-width: 90%;
+            max-height: 80%;
+            image-rendering: pixelated;
+            border: 4px solid #0f0;
+            /* Green border */
+        }
+
+        #lightbox span {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #ff0;
+            /* Yellow close button */
+            cursor: pointer;
+            font-family: 'Press Start 2P', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Front Page -->
+    <div id="front-page">
+        <button id="welcome-button" onclick="showJournal()">Welcome Human</button>
+    </div>
+
+    <!-- Journal Container -->
+    <div id="journal-container"></div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <span>&times;</span>
+        <img id="lightbox-img" src="">
+    </div>
+
+    <script>
+        const memories = [{
+            img: 'pic1.jpeg',
+            title: 'Memory 1',
+            text: 'Intramurals mythical 5 in Basketball.'
+        },
+            {
+                img: 'pic2.jpeg',
+                title: 'Memory 2',
+                text: 'swimming lesson in p.e for our PETA for sir Aris.'
+            },
+            {
+                img: 'pic3.jpeg',
+                title: 'Memory 3',
+                text: 'Photo during our work immersion in PNP.'
+            },
+            {
+                img: 'pic4.jpeg',
+                title: 'Memory 4',
+                text: 'Last day of our immersion with the OJT collage students.'
+            },
+            {
+                img: 'pic5.jpeg',
+                title: 'Memory 5',
+                text: 'Picture taken when we are awarded for Bulprisa in grd 11.'
+            },
+            {
+                img: 'pic6.jpeg',
+                title: 'Memory 6',
+                text: 'Picture taken during Fun Run.'
+            },
+            {
+                img: 'pic7.jpeg',
+                title: 'Memory 7',
+                text: 'Picture to celebrate defending our research.'
+            },
+            {
+                img: 'pic8.jpeg',
+                title: 'Memory 8',
+                text: 'This picture was taken when we are working in munincipal hall.'
+            },
+            {
+                img: 'pic9.jpeg',
+                title: 'Memory 9',
+                text: 'Picture taken After our swimming lesson.'
+            },
+            {
+                img: 'pic10.jpeg',
+                title: 'Memory 10',
+                text: 'Enjoying life with friends during our retreat.'
+            },
+            {
+                img: 'pic11.jpeg',
+                title: 'Memory 11',
+                text: 'looking decent for my school I.D picture.'
+            },
+        ];
+
+        function showJournal() {
+            document.getElementById('front-page').style.display = 'none';
+            const container = document.getElementById('journal-container');
+            container.style.display = 'flex';
+            memories.forEach(memory => {
+                const html = `
+                <div class="journal-entry" onclick="flipCard(this)">
+                <div class="card">
+                <div class="card-face card-front">
+                <img src="${memory.img}" onclick="openLightbox(event, this.src)">
+                <p><strong>${memory.title}</strong></p>
+                </div>
+                <div class="card-face card-back">
+                <p>${memory.text}</p>
+                </div>
+                </div>
+                </div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        // Card flip
+        function flipCard(entry) {
+            const card = entry.querySelector('.card');
+            card.classList.toggle('flipped');
+        }
+
+        // Lightbox
+        function openLightbox(event, src) {
+            event.stopPropagation();
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
